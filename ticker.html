@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>716COMMANDCENTER — Live Incident Ticker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root {
+    --bg: #05070b;
+    --panel: #0b1018;
+    --accent: #22c55e;
+    --accent-warn: #facc15;
+    --accent-err: #f97373;
+    --text-main: #e5f2ff;
+    --text-dim: #9ca3af;
+    --border: #1f2937;
+    --ticker-speed: 40s;
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    margin: 0;
+    background: transparent;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--text-main);
+    overflow: hidden;
+  }
+  .bar {
+    width: 100%;
+    height: 64px;
+    background: linear-gradient(to right, #020617, #020617 40%, #020617);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+  }
+  .live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(220, 38, 38, 0.18);
+    border: 1px solid #ef4444;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #ef4444;
+    box-shadow: 0 0 8px rgba(248, 113, 113, 0.9);
+    animation: pulse 1.4s infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .clock {
+    font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid #1f2937;
+    color: var(--text-dim);
+  }
+  .clock span {
+    color: var(--text-main);
+  }
+  .divider {
+    width: 1px;
+    height: 32px;
+    background: #111827;
+  }
+  .ticker-wrap {
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+  }
+  .ticker {
+    position: absolute;
+    white-space: nowrap;
+    will-change: transform;
+    animation: scroll var(--ticker-speed) linear infinite;
+  }
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 48px;
+    font-size: 14px;
+  }
+  .tag {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    background: rgba(34, 197, 94, 0.12);
+  }
+  .tag-warn {
+    border-color: var(--accent-warn);
+    color: var(--accent-warn);
+    background: rgba(250, 204, 21, 0.12);
+  }
+  .tag-err {
+    border-color: var(--accent-err);
+    color: var(--accent-err);
+    background: rgba(249, 115, 115, 0.12);
+  }
+  .loc {
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="live-pill">
+    <div class="live-dot"></div>
+    <span>Live</span>
+  </div>
+
+  <div class="clock" id="clock">
+    <span>00:00:00</span> • EST
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="ticker-wrap">
+    <div class="ticker" id="ticker">
+      <!-- DUPLICATED CONTENT FOR SEAMLESS LOOP -->
+      <div id="ticker-inner"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const incidents = [
+    {
+      tag: "WEATHER",
+      level: "warn",
+      text: "Lake effect band shifting south — visibility near zero in spots",
+      loc: "Chautauqua Ridge"
+    },
+    {
+      tag: "MVC",
+      level: "err",
+      text: "I-90 WB closed between 59–60 — multiple vehicles involved",
+      loc: "I-90 WB 59–60"
+    },
+    {
+      tag: "FIRE",
+      level: "err",
+      text: "Reported structure fire — smoke showing from second floor",
+      loc: "Village of Fredonia"
+    },
+    {
+      tag: "EMS",
+      level: "ok",
+      text: "Priority 1 medical — ALS en route, BLS on scene",
+      loc: "Dunkirk"
+    },
+    {
+      tag: "INFO",
+      level: "ok",
+      text: "Scanner feed provided for public awareness — not an official source",
+      loc: "716COMMANDCENTER"
+    }
+  ];
+
+  function buildTicker() {
+    const container = document.getElementById('ticker-inner');
+    container.innerHTML = '';
+
+    function makeSpan(incident) {
+      const span = document.createElement('span');
+      span.className = 'item';
+
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      if (incident.level === 'warn') tag.classList.add('tag-warn');
+      if (incident.level === 'err') tag.classList.add('tag-err');
+      tag.textContent = incident.tag;
+
+      const text = document.createElement('span');
+      text.textContent = '• ' + incident.text;
+
+      const loc = document.createElement('span');
+      loc.className = 'loc';
+      loc.textContent = '— ' + incident.loc;
+
+      span.appendChild(tag);
+      span.appendChild(text);
+      span.appendChild(loc);
+      return span;
+    }
+
+    // duplicate content for seamless loop
+    for (let i = 0; i < 2; i++) {
+      incidents.forEach(inc => container.appendChild(makeSpan(inc)));
+    }
+  }
+
+  function updateClock() {
+    const el = document.getElementById('clock').querySelector('span');
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+    el.textContent = `${hh}:${mm}:${ss}`;
+  }
+
+  buildTicker();
+  updateClock();
+  setInterval(updateClock, 1000);
+</script>
+
+</body>
+</html>
