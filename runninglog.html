@@ -1,74 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-const FEED_URL = "https://trippywebhub.github.io/broadcastify-feed/runninglog.json";
   <meta charset="UTF-8">
-<title>716COMMANDCENTER — Running Log Snapshot</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  :root {
-    --bg: rgba(15, 23, 42, 0.85);
-    --border: #1f2937;
-    --text-main: #e5f2ff;
-    --text-dim: #9ca3af;
-    --accent: #3b82f6;
-    --danger: #ef4444;
-    --warn: #facc15;
-    --ok: #22c55e;
-  }
+  <title>716COMMANDCENTER — Running Log Snapshot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  body {
-    margin: 0;
-    background: transparent;
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    color: var(--text-main);
-    overflow: hidden;
-  }
+  <style>
+    :root {
+      --bg: rgba(15, 23, 42, 0.85);
+      --border: #1f2937;
+      --text-main: #e5f2ff;
+      --text-dim: #9ca3af;
+      --accent: #3b82f6;
+      --danger: #ef4444;
+      --warn: #facc15;
+      --ok: #22c55e;
+    }
 
-  .panel {
-    width: 360px;
-    padding: 16px;
-    border-radius: 12px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    backdrop-filter: blur(6px);
-  }
+    body {
+      margin: 0;
+      background: transparent;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--text-main);
+      overflow: hidden;
+    }
 
-  .title {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 12px;
-    letter-spacing: 0.03em;
-  }
+    .panel {
+      width: 360px;
+      padding: 16px;
+      border-radius: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(6px);
+    }
 
-  .entry {
-    padding: 10px 12px;
-    border-radius: 8px;
-    background: rgba(2, 6, 23, 0.6);
-    border: 1px solid #0f172a;
-    margin-bottom: 10px;
-  }
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: 0.03em;
+    }
 
-  .entry:last-child {
-    margin-bottom: 0;
-  }
+    .entry {
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(2, 6, 23, 0.6);
+      border: 1px solid #0f172a;
+      margin-bottom: 10px;
+    }
 
-  .time {
-    font-family: ui-monospace, monospace;
-    font-size: 13px;
-    color: var(--text-dim);
-    margin-bottom: 4px;
-  }
+    .entry:last-child {
+      margin-bottom: 0;
+    }
 
-  .text {
-    font-size: 14px;
-    line-height: 1.35;
-  }
+    .time {
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
 
-  .tag {
-    display: inline-block;
-    margin-top: 6px;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 11px;
-    text-transform: uppercase;
+    .text {
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      background: rgba(59, 130, 246, 0.12);
+    }
+  </style>
+
+  <script>
+    const FEED_URL = "https://trippywebhub.github.io/broadcastify-feed/runninglog.json";
+  </script>
+</head>
+
+<body>
+
+<div class="panel" id="log-panel">
+  <div class="title">Running Log — Last Entries</div>
+</div>
+
+<script>
+async function loadLog() {
+  try {
+    const res = await fetch(FEED_URL + '?t=' + Date.now()); // cache-bust
+    const data = await res.json();
+
+    const panel = document.getElementById('log-panel');
+    panel.innerHTML = '<div class="title">Running Log — Last Entries</div>';
+
+    data.slice(-5).reverse().forEach(entry => {
+      const div = document.createElement('div');
+      div.className = 'entry';
+
+      div.innerHTML = `
+        <div class="time">${entry.timestamp}</div>
+        <div class="text">${entry.text}</div>
+        <div class="tag">${entry.tag}</div>
+      `;
+
+      panel.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error("Error loading log:", err);
+  }
+}
+
+loadLog();
+setInterval(loadLog, 5000);
+</script>
+
+</body>
+</html>
