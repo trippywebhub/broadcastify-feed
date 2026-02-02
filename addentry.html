@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Running Log Entry</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #0f172a;
+      color: #e5f2ff;
+      font-family: system-ui, sans-serif;
+      padding: 20px;
+    }
+    .box {
+      max-width: 420px;
+      margin: auto;
+      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      border: 1px solid #1e293b;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #e5f2ff;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #3b82f6;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Add Running Log Entry</h2>
+
+  <form action="https://api.staticforms.xyz/submit" method="POST">
+    <input type="hidden" name="accessKey" value="YOUR_STATIC_FORMS_KEY">
+    <input type="hidden" name="redirectTo" value="https://trippywebhub.github.io/broadcastify-feed/addentry.html">
+
+    <label>Tag</label>
+    <select name="tag">
+      <option>MVC</option>
+      <option>FIRE</option>
+      <option>EMS</option>
+      <option>WEATHER</option>
+      <option>INFO</option>
+    </select>
+
+    <label>Description</label>
+    <textarea name="text" rows="3"></textarea>
+
+    <label>Location</label>
+    <input type="text" name="loc">
+
+    <button type="submit">Submit Entry</button>
+  </form>
+</div>
+
+</body>
+</html>
