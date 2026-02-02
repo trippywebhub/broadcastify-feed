@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>716CREW — Broadcastify Feed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #05070b;
+            color: #e5f2ff;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .card {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 18px;
+            border-radius: 12px;
+            background: #0c1118;
+            border: 1px solid #1f2a3a;
+        }
+
+        .status {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+            .status span {
+                font-weight: bold;
+            }
+
+        .status-ok {
+            color: #4ade80;
+        }
+
+        .status-warn {
+            color: #facc15;
+        }
+
+        .status-err {
+            color: #f97373;
+        }
+
+        button {
+            margin-top: 12px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background: #1d4ed8;
+            }
+
+        audio {
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .small {
+            margin-top: 10px;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>716CREW — Chaut Co Feed</h1>
+
+    <div class="card">
+        <div id="status" class="status status-warn">
+            <span>Status:</span> Connecting…
+        </div>
+
+        <!-- STATIC FEED WRAPPER -->
+        <!-- Replace FEED_URL_HERE with your actual static Broadcastify URL, MAYBE THIS TIME WORKS. -->
+        <audio id="scannerAudio" controls autoplay>
+            <source src="https://audio.broadcastify.com/7254.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+
+        <button onclick="reconnect()">Reconnect</button>
+
+        <div class="small">
+            Public scanner audio only. If the feed fails, check credentials or Broadcastify status.
+        </div>
+    </div>
+
+    <script>
+  const audio = document.getElementById('scannerAudio');
+  const statusEl = document.getElementById('status');
+
+  function setStatus(text, cls) {
+    statusEl.textContent = '';
+    const label = document.createElement('span');
+    label.textContent = 'Status: ';
+    statusEl.appendChild(label);
+    statusEl.append(' ' + text);
+    statusEl.className = 'status ' + cls;
+  }
+
+  function reconnect() {
+    setStatus('Reconnecting…', 'status-warn');
+    const src = audio.querySelector('source');
+    // Force reload by appending a cache-buster
+    const base = src.getAttribute('src').split('?')[0];
+    src.setAttribute('src', base + '?t=' + Date.now());
+    audio.load();
+    audio.play().catch(() => {
+      setStatus('Tap play to start audio', 'status-warn');
+    });
+  }
+
+  audio.addEventListener('playing', () => {
+    setStatus('Playing', 'status-ok');
+  });
+
+  audio.addEventListener('pause', () => {
+    setStatus('Paused', 'status-warn');
+  });
+
+  audio.addEventListener('error', () => {
+    setStatus('Error loading feed', 'status-err');
+  });
+
+  // Initial attempt
+  audio.play().catch(() => {
+    setStatus('Tap play to start audio', 'status-warn');
+  });
+    </script>
+
+</body>
+</html>
