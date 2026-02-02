@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Feed Active Indicator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root {
+    --bg: rgba(0,0,0,0);
+    --active: #22c55e;
+    --warn: #facc15;
+    --err: #ef4444;
+    --text: #e5f2ff;
+    --dim: #9ca3af;
+    --border: #1f2937;
+  }
+
+  body {
+    margin: 0;
+    background: transparent;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(4px);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: var(--active);
+    box-shadow: 0 0 10px var(--active);
+    animation: pulse 1.4s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .state {
+    color: var(--text);
+  }
+</style>
+</head>
+<body>
+
+<div class="badge" id="badge">
+  <div class="dot" id="dot"></div>
+  <span class="state" id="state">ACTIVE</span>
+</div>
+
+<script>
+  // Default state: ACTIVE
+  let status = "active";
+
+  // You can manually change this later or automate it
+  function setStatus(newState) {
+    status = newState;
+    const dot = document.getElementById("dot");
+    const state = document.getElementById("state");
+
+    if (newState === "active") {
+      dot.style.background = "#22c55e";
+      dot.style.boxShadow = "0 0 10px #22c55e";
+      state.textContent = "ACTIVE";
+    }
+
+    if (newState === "buffering") {
+      dot.style.background = "#facc15";
+      dot.style.boxShadow
