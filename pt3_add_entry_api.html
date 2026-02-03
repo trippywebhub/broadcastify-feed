@@ -34,7 +34,7 @@
     <input type="text" id="timestamp" placeholder="YYYY-MM-DD HH:MM:SS">
 
     <label>Operator</label>
-    <input type="text" id="operator" placeholder="Paul">
+    <input type="text" id="operator" placeholder="PT3">
 
     <label>Summary</label>
     <textarea id="summary"></textarea>
@@ -60,18 +60,18 @@
 </form>
 
 <script>
-  <script>
+// Auto-load token + auto-fill timestamp + auto-fill operator
 document.addEventListener("DOMContentLoaded", () => {
-    // Load saved token
     const savedToken = localStorage.getItem("pt3_token");
     if (savedToken) {
         document.getElementById("token").value = savedToken;
     }
 
-    // Auto-fill timestamp on load
     document.getElementById("timestamp").value = generateTimestamp();
+    document.getElementById("operator").value = "PT3";
 });
 
+// Timestamp generator
 function generateTimestamp() {
     const now = new Date();
 
@@ -79,132 +79,4 @@ function generateTimestamp() {
     const month = String(now.getMonth() + 1).padStart(2, "0");
     const day = String(now.getDate()).padStart(2, "0");
 
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    const seconds = String(now.getSeconds()).padStart(2, "0");
-
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-}
-
-async function submitEntry(// Refresh timestamp at moment of submission
-document.getElementById("timestamp").value = generateTimestamp();
-) {
-    const repoOwner = "trippywebhub";   // your GitHub username
-    const repoName = "PT3";             // your repo name
-    const filePath = "pt3.json";        // JSON backend file
-
-    const tokenField = document.getElementById('token');
-    const token = tokenField.value;
-
-    // Cache token locally
-    localStorage.setItem("pt3_token", token);
-
-    const newEntry = {
-        timestamp: document.getElementById('timestamp').value,
-        operator: document.getElementById('operator').value,
-        lane: "PT3",
-        summary: document.getElementById('summary').value,
-        action: document.getElementById('action').value,
-        status: document.getElementById('status').value,
-        attachments: document.getElementById('attachments').value
-            .split(',')
-            .map(a => a.trim())
-            .filter(a => a.length > 0)
-    };
-
-    // STEP 1 — Get existing pt3.json
-    const getRes = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
-
-    const fileData = await getRes.json();
-    const existingContent = JSON.parse(atob(fileData.content));
-
-    // STEP 2 — Append new entry
-    existingContent.push(newEntry);
-
-    // STEP 3 — Encode updated JSON
-    const updatedContent = btoa(JSON.stringify(existingContent, null, 2));
-
-    // STEP 4 — Commit back to GitHub
-    const updateRes = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
-        method: "PUT",
-        headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            message: "PT3 entry added via API",
-            content: updatedContent,
-            sha: fileData.sha
-        })
-    });
-
-    if (updateRes.ok) {
-        alert("Entry added successfully!");
-    } else {
-        alert("Error adding entry.");
-    }
-}
-</script>
-
-</script>
-
-async function submitEntry() {
-    const repoOwner = "trippywebhub";   // your GitHub username
-    const repoName = "PT3";             // your repo name
-    const filePath = "pt3.json";        // JSON backend file
-
-    const token = document.getElementById('token').value;
-
-    const newEntry = {
-        timestamp: document.getElementById('timestamp').value,
-        operator: document.getElementById('operator').value,
-        lane: "PT3",
-        summary: document.getElementById('summary').value,
-        action: document.getElementById('action').value,
-        status: document.getElementById('status').value,
-        attachments: document.getElementById('attachments').value
-            .split(',')
-            .map(a => a.trim())
-            .filter(a => a.length > 0)
-    };
-
-    // STEP 1 — Get existing pt3.json
-    const getRes = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
-        headers: { Authorization: `Bearer ${token}` }
-    });
-
-    const fileData = await getRes.json();
-    const existingContent = JSON.parse(atob(fileData.content));
-
-    // STEP 2 — Append new entry
-    existingContent.push(newEntry);
-
-    // STEP 3 — Encode updated JSON
-    const updatedContent = btoa(JSON.stringify(existingContent, null, 2));
-
-    // STEP 4 — Commit back to GitHub
-    const updateRes = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
-        method: "PUT",
-        headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            message: "PT3 entry added via API",
-            content: updatedContent,
-            sha: fileData.sha
-        })
-    });
-
-    if (updateRes.ok) {
-        alert("Entry added successfully!");
-    } else {
-        alert("Error adding entry.");
-    }
-}
-</script>
-
-</body>
-</html>
+    const hours =
