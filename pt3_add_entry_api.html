@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PT3 Add Entry (API)</title>
+<style>
+    body {
+        background: #0d0d0d;
+        color: #ffffff;
+        font-family: Arial, sans-serif;
+        padding: 40px;
+    }
+    h1 { text-align: center; letter-spacing: 2px; margin-bottom: 30px; }
+    label { display: block; margin-top: 15px; opacity: 0.8; }
+    input, textarea, select {
+        width: 100%; padding: 10px; margin-top: 6px;
+        background: #1a1a1a; border: none; border-radius: 4px; color: #fff;
+    }
+    textarea { height: 120px; resize: vertical; }
+    button {
+        margin-top: 25px; width: 100%; padding: 12px;
+        background: #0078ff; border: none; border-radius: 4px;
+        color: #fff; font-size: 1.1rem; cursor: pointer;
+    }
+    button:hover { background: #3399ff; }
+</style>
+</head>
+<body>
+
+<h1>PT3 — Add Entry</h1>
+
+<form id="pt3Form">
+    <label>Timestamp</label>
+    <input type="text" id="timestamp" placeholder="YYYY-MM-DD HH:MM:SS">
+
+    <label>Operator</label>
+    <input type="text" id="operator" placeholder="Paul">
+
+    <label>Summary</label>
+    <textarea id="summary"></textarea>
+
+    <label>Action</label>
+    <textarea id="action"></textarea>
+
+    <label>Status</label>
+    <select id="status">
+        <option>Open</option>
+        <option>In Progress</option>
+        <option>Completed</option>
+        <option>Archived</option>
+    </select>
+
+    <label>Attachments (comma-separated URLs)</label>
+    <input type="text" id="attachments">
+
+    <label>GitHub Token</label>
+    <input type="password" id="token" placeholder="Your GitHub PAT">
+
+    <button type="button" onclick="submitEntry()">Submit Entry</button>
+</form>
+
+<script>
+async function submitEntry() {
+    const repoOwner = "trippywebhub";   // your GitHub username
+    const repoName = "PT3";             // your repo name
+    const filePath = "pt3.json";        // JSON backend file
+
+    const token = document.getElementById('token').value;
+
+    const newEntry = {
+        timestamp: document.getElementById('timestamp').value,
+        operator: document.getElementById('operator').value,
+        lane: "PT3",
+        summary: document.getElementById('summary').value,
+        action: document.getElementById('action').value,
+        status: document.getElementById('status').value,
+        attachments: document.getElementById('attachments').value
+            .split(',')
+            .map(a => a.trim())
+            .filter(a => a.length > 0)
+    };
+
+    // STEP 1 — Get existing pt3.json
+    const getRes = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const fileData = await getRes.json();
+    const existingContent = JSON.parse(atob(fileData.content));
+
+    // STEP 2 — Append new entry
+    existingContent.push(newEntry);
+
+    // STEP 3 — Encode updated JSON
+    const updatedContent = btoa(JSON.stringify(existingContent, null, 2));
+
+    // STEP 4 — Commit back to GitHub
+    const updateRes = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
+        method: "PUT",
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            message: "PT3 entry added via API",
+            content: updatedContent,
+            sha: fileData.sha
+        })
+    });
+
+    if (updateRes.ok) {
+        alert("Entry added successfully!");
+    } else {
+        alert("Error adding entry.");
+    }
+}
+</script>
+
+</body>
+</html>
