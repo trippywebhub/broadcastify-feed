@@ -60,7 +60,7 @@
 </form>
 
 <script>
-    <script>
+  <script>
 document.addEventListener("DOMContentLoaded", () => {
     const savedToken = localStorage.getItem("pt3_token");
     if (savedToken) {
@@ -69,14 +69,65 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function submitEntry() {
+    const repoOwner = "trippywebhub";   // your GitHub username
+    const repoName = "PT3";             // your repo name
+    const filePath = "pt3.json";        // JSON backend file
+
     const tokenField = document.getElementById('token');
     const token = tokenField.value;
 
-    // cache token locally
+    // Cache token locally
     localStorage.setItem("pt3_token", token);
 
-    // ...rest of your existing submitEntry code...
+    const newEntry = {
+        timestamp: document.getElementById('timestamp').value,
+        operator: document.getElementById('operator').value,
+        lane: "PT3",
+        summary: document.getElementById('summary').value,
+        action: document.getElementById('action').value,
+        status: document.getElementById('status').value,
+        attachments: document.getElementById('attachments').value
+            .split(',')
+            .map(a => a.trim())
+            .filter(a => a.length > 0)
+    };
+
+    // STEP 1 — Get existing pt3.json
+    const getRes = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const fileData = await getRes.json();
+    const existingContent = JSON.parse(atob(fileData.content));
+
+    // STEP 2 — Append new entry
+    existingContent.push(newEntry);
+
+    // STEP 3 — Encode updated JSON
+    const updatedContent = btoa(JSON.stringify(existingContent, null, 2));
+
+    // STEP 4 — Commit back to GitHub
+    const updateRes = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`, {
+        method: "PUT",
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            message: "PT3 entry added via API",
+            content: updatedContent,
+            sha: fileData.sha
+        })
+    });
+
+    if (updateRes.ok) {
+        alert("Entry added successfully!");
+    } else {
+        alert("Error adding entry.");
+    }
 }
+</script>
+
 </script>
 
 async function submitEntry() {
