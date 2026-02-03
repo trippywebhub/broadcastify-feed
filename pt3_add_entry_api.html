@@ -60,6 +60,25 @@
 </form>
 
 <script>
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const savedToken = localStorage.getItem("pt3_token");
+    if (savedToken) {
+        document.getElementById("token").value = savedToken;
+    }
+});
+
+async function submitEntry() {
+    const tokenField = document.getElementById('token');
+    const token = tokenField.value;
+
+    // cache token locally
+    localStorage.setItem("pt3_token", token);
+
+    // ...rest of your existing submitEntry code...
+}
+</script>
+
 async function submitEntry() {
     const repoOwner = "trippywebhub";   // your GitHub username
     const repoName = "PT3";             // your repo name
