@@ -62,13 +62,33 @@
 <script>
   <script>
 document.addEventListener("DOMContentLoaded", () => {
+    // Load saved token
     const savedToken = localStorage.getItem("pt3_token");
     if (savedToken) {
         document.getElementById("token").value = savedToken;
     }
+
+    // Auto-fill timestamp on load
+    document.getElementById("timestamp").value = generateTimestamp();
 });
 
-async function submitEntry() {
+function generateTimestamp() {
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+async function submitEntry(// Refresh timestamp at moment of submission
+document.getElementById("timestamp").value = generateTimestamp();
+) {
     const repoOwner = "trippywebhub";   // your GitHub username
     const repoName = "PT3";             // your repo name
     const filePath = "pt3.json";        // JSON backend file
