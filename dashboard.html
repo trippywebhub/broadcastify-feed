@@ -67,8 +67,33 @@ iframe {
   box-shadow: 0 0 8px rgba(0,0,0,0.6);
 }
 
+#wallButton {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 8px 14px;
+  background: rgba(10, 10, 10, 0.85);
+  border: 1px solid #0a84ff;
+  border-radius: 20px;
+  color: #0a84ff;
+  font-size: 12px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  z-index: 9999;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+#wallButton:hover {
+  background: rgba(10, 10, 10, 1);
+  box-shadow: 0 0 8px #0a84ff;
+}
+
+  
 </style> </head> <body>
 
+<div id="wallButton" onclick="openWallMode()">WALL MODE</div>
+
+  
 <!-- HEADER --> <div id="header"> <div> 716COMMANDCENTER <span id="date"></span> </div> <div id="clock"></div> </div>
 
 <!-- TICKER --> <div id="ticker"> <span>716COMMANDCENTER ACTIVE — SYSTEMS NOMINAL — ALL LANES MONITORED — DESK1 ONLINE —</span> </div>
@@ -77,4 +102,11 @@ iframe {
 
 <!-- CLOCK + DATE SCRIPT --> <script> function updateClockAndDate() { const now = new Date(); const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); const date = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' }); document.getElementById("clock").textContent = time; document.getElementById("date").textContent = " — " + date; } setInterval(updateClockAndDate, 1000); updateClockAndDate(); </script>
 
+<script>
+function openWallMode() {
+  window.open("wall.html", "_blank");
+}
+</script>
+
+  
 </body> </html>
